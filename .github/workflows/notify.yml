@@ -22,8 +22,7 @@ jobs:
       - name: 패키지 설치
         run: |
           pip install -r requirements.txt
-          playwright install chromium
-          playwright install-deps chromium
+          playwright install --with-deps chromium
 
       - name: 쿠키 및 .env 설정
         env:
