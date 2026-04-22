@@ -1,0 +1,48 @@
+name: 풋살 강습 알림
+
+on:
+  schedule:
+    # 매주 월요일 08:30 KST = 일요일 23:30 UTC
+    - cron: '30 23 * * 0'
+  workflow_dispatch:  # 수동 실행 버튼
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 패키지 설치
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: 쿠키 및 환경변수 설정
+        run: |
+          echo "${{ secrets.KAKAO_COOKIES }}" | base64 -d > cookies.json
+          cat > .env << 'EOF'
+          KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_ACCESS_TOKEN=${{ secrets.KAKAO_ACCESS_TOKEN }}
+          KAKAO_REFRESH_TOKEN=${{ secrets.KAKAO_REFRESH_TOKEN }}
+          ACCOUNT_NUMBER=${{ secrets.ACCOUNT_NUMBER }}
+          ACCOUNT_BANK=${{ secrets.ACCOUNT_BANK }}
+          ACCOUNT_HOLDER=${{ secrets.ACCOUNT_HOLDER }}
+          EOF
+
+      - name: 알림 실행
+        run: python3 main.py
+
+      - name: 갱신된 토큰 GitHub Secrets 업데이트
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: python3 update_secrets.py
