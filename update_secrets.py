@@ -12,6 +12,8 @@ ENV_PATH = Path(".env")
 
 
 def read_env_value(key: str) -> str:
+    if not ENV_PATH.exists():
+        return ""
     content = ENV_PATH.read_text(encoding="utf-8")
     m = re.search(rf"^{key}=(.+)$", content, re.MULTILINE)
     return m.group(1).strip() if m else ""

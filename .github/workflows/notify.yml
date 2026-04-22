@@ -25,18 +25,21 @@ jobs:
           playwright install chromium
           playwright install-deps chromium
 
-      - name: 쿠키 및 환경변수 설정
+      - name: 쿠키 및 .env 설정
+        env:
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_ACCESS_TOKEN: ${{ secrets.KAKAO_ACCESS_TOKEN }}
+          KAKAO_REFRESH_TOKEN: ${{ secrets.KAKAO_REFRESH_TOKEN }}
+          ACCOUNT_NUMBER: ${{ secrets.ACCOUNT_NUMBER }}
+          ACCOUNT_BANK: ${{ secrets.ACCOUNT_BANK }}
+          ACCOUNT_HOLDER: ${{ secrets.ACCOUNT_HOLDER }}
+          KAKAO_COOKIES: ${{ secrets.KAKAO_COOKIES }}
         run: |
-          echo "${{ secrets.KAKAO_COOKIES }}" | base64 -d > cookies.json
-          cat > .env << 'EOF'
-          KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}
-          KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
-          KAKAO_ACCESS_TOKEN=${{ secrets.KAKAO_ACCESS_TOKEN }}
-          KAKAO_REFRESH_TOKEN=${{ secrets.KAKAO_REFRESH_TOKEN }}
-          ACCOUNT_NUMBER=${{ secrets.ACCOUNT_NUMBER }}
-          ACCOUNT_BANK=${{ secrets.ACCOUNT_BANK }}
-          ACCOUNT_HOLDER=${{ secrets.ACCOUNT_HOLDER }}
-          EOF
+          echo "$KAKAO_COOKIES" | base64 -d > cookies.json
+          printf 'KAKAO_REST_API_KEY=%s\nKAKAO_CLIENT_SECRET=%s\nKAKAO_ACCESS_TOKEN=%s\nKAKAO_REFRESH_TOKEN=%s\nACCOUNT_NUMBER=%s\nACCOUNT_BANK=%s\nACCOUNT_HOLDER=%s\n' \
+            "$KAKAO_REST_API_KEY" "$KAKAO_CLIENT_SECRET" "$KAKAO_ACCESS_TOKEN" \
+            "$KAKAO_REFRESH_TOKEN" "$ACCOUNT_NUMBER" "$ACCOUNT_BANK" "$ACCOUNT_HOLDER" > .env
 
       - name: 알림 실행
         run: python3 main.py
