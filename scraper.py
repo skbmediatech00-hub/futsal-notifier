@@ -96,6 +96,7 @@ def scrape(headless: bool = True) -> Optional[dict]:
         page.goto(CALENDAR_URL, wait_until="domcontentloaded")
         page.wait_for_timeout(5_000)
 
+        print(f"  현재 URL: {page.url}")
         if "accounts.kakao.com" in page.url or "login" in page.url:
             browser.close()
             raise CookieExpiredError("쿠키 만료. login.py를 다시 실행하세요.")
@@ -116,6 +117,7 @@ def scrape(headless: bool = True) -> Optional[dict]:
         event_el = None
         saved_screen_out_text = ""  # 더블클릭 전에 저장
         screen_outs = page.locator(".screen_out").all()
+        print(f"  screen_out 요소 수: {len(screen_outs)}")
         for el in screen_outs:
             try:
                 txt = el.inner_text()
